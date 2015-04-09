@@ -1,0 +1,163 @@
+*, :after, :before {
+  box-sizing: border-box;
+}
+
+body {
+	/*padding: 50px;*/
+	font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+	background: #000;
+}
+
+a {
+	color: #00B7FF;
+}
+
+/* Styles for index.jade */
+
+#dollars {
+	/*display: none; /*test*/ 
+}
+
+.login-logo {
+	width: 366px;
+	height: 366px;
+	margin: 50px auto;
+	background: url(../images/dollars.svg) no-repeat;
+	background-size: 366px 366px;
+}
+
+.login-name, .chat-name-input {
+	text-transform: uppercase;
+	text-align: center;
+	color: #fff;
+	font-weight: 700;
+	font-size: 14px;
+}
+
+.login-name-input {
+	width: 169px;
+	height: 23px;
+	padding: 2px 10px;
+	margin-left: 4px;
+	font-family: Verdana, Geneva, sans-serif;
+	font-size: 14px;
+	color: #000;
+	font-weight: 400;
+	background: #fff;
+	border-radius: 20px;
+	border: 0;
+	outline: 0;
+}
+
+.login-submit, .chat-submit {
+	margin: 50px auto 20px;
+	text-align: center;
+}
+
+.login-submit-input {
+	width: 193px;
+	background: #666;
+	border-radius: 12px;
+	line-height: 1.4;
+	font-size: 14px;
+	border: 2px solid #fff;
+	color: #fff;
+	text-transform: uppercase;
+	font-weight: 700;
+	-webkit-appearance: none;
+	cursor: pointer;
+}
+
+#dollars-options {
+	width: 366px;
+	height: 366px;
+	position:absolute;
+	top:0;
+	bottom:0;
+	left:0;
+	right:0;
+	margin:auto;
+}
+
+.chat-name {
+	display: none;
+}
+
+.chat-name-input {
+	position:absolute;
+	top:0;
+	bottom:0;
+	left:0;
+	right:0;
+	margin:auto;
+}
+
+.chat-broadcast, .chat-privately {
+	margin: 50px auto;
+	width: 253px;
+	color: #fff;
+	border-radius: 40px;
+	line-height: 3.3;
+	font-size: 18px;
+	border: 2px solid #fff;
+	text-transform: uppercase;
+	font-weight: 700;
+	-webkit-appearance: none;
+	cursor: pointer;
+	text-align: center;
+}
+
+.chat-broadcast {
+	background: #ab1d19;
+	background: -webkit-linear-gradient(top,#c3858b 0,#b2413f 50%,#b02b1d 51%,#b43422 100%);
+	background: linear-gradient(to bottom,#c3858b 0,#b2413f 50%,#b02b1d 51%,#b43422 100%);
+}
+
+.chat-privately {
+	background: #333;
+	background: -webkit-linear-gradient(top,#cec5c3 0,#a39a9c 50%,#857981 51%,#797175 100%);
+	background: linear-gradient(to bottom,#cec5c3 0,#a39a9c 50%,#857981 51%,#797175 100%);
+}
+
+/* Style for room.jade */
+
+.message-input {
+	width: 100%;
+	position: fixed;
+	bottom: 0;
+	padding: 3px;
+	background: #000;
+	display: inline-block;
+}
+
+.message-input input {
+	margin: 0;
+	padding: 0 6px;
+	height: 28px;
+	width: 87%;
+	padding: 2px 10px;
+	margin-left: 4px;
+	font-family: Verdana, Geneva, sans-serif;
+	font-size: 14px;
+	color: #000;
+	font-weight: 400;
+	background: #fff;
+	border-radius: 20px;
+	border: 0;
+	outline: 0;
+}
+
+.message-input button {
+	width: 10%;
+	height: 28px;
+	margin-left: 2%;
+	background: #666;
+	border-radius: 12px;
+	font-size: 14px;
+	border: 2px solid #fff;
+	color: #fff;
+	text-transform: uppercase;
+	font-weight: 700;
+	-webkit-appearance: none;
+	cursor: pointer;
+}
