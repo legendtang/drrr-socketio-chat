@@ -5,7 +5,7 @@ function chatServer(io) {
 	var onlineCount = 0;
 
 	io.on('connection', function(socket){
-		console.log('a user connected');
+		console.log('a Dollars member connected');
 		
 		socket.on('login', function(obj){
 
@@ -18,7 +18,7 @@ function chatServer(io) {
 			}
 			
 			io.emit('login', {onlineUsers:onlineUsers, onlineCount:onlineCount, user:obj});
-			console.log(obj.username+'加入了聊天室');
+			console.log(obj.username+' さんが入室しました');
 		});
 		
 		socket.on('disconnect', function(){
@@ -32,7 +32,7 @@ function chatServer(io) {
 				onlineCount--;
 				
 				io.emit('logout', {onlineUsers:onlineUsers, onlineCount:onlineCount, user:obj});
-				console.log(obj.username + '退出了聊天室');
+				console.log(obj.username + ' さんが退室しました');
 			}
 		});
 		

@@ -119,7 +119,17 @@ a {
 	background: linear-gradient(to bottom,#cec5c3 0,#a39a9c 50%,#857981 51%,#797175 100%);
 }
 
-/* Style for room.jade */
+/* Style for room */
+
+@media (min-width:620px) {
+	#talk {
+		width: 620px;
+		margin: 0 auto;
+	}
+	.message-input {
+		width: 620px !important;
+	}
+}
 
 .message-input {
 	width: 100%;
@@ -128,6 +138,7 @@ a {
 	padding: 3px;
 	background: #000;
 	display: inline-block;
+	z-index: 999;
 }
 
 .message-input input {
@@ -160,4 +171,77 @@ a {
 	font-weight: 700;
 	-webkit-appearance: none;
 	cursor: pointer;
+}
+
+section.system, section.user {
+	width: 100%;
+	color: #fff;
+	font: 16px/1.42857143 "Helvetica Neue", Helvetica, Arial, Meiryo, sans-serif;
+	margin-bottom: 10px;
+}
+
+.avatar {
+	width: 58px;
+	height: 58px;
+	text-indent: -99999px;
+	background-size: cover !important;
+	display: inline-block;
+	margin-right: 10px;
+}
+
+.avatar-setton {
+	background: url(../images/avatar.svg) center top no-repeat;
+}
+
+section.user {
+/*	display: inline-block;*/
+}
+
+.username {
+	/*display: inline-block;*/
+	width: 58px;
+	text-align: center;
+}
+
+.tail-wrap {
+	display: inline-block;
+	width: 22px;
+	height: 16px;
+	margin: 23px 0px 0px -3px;
+	position: absolute;
+	background: #333;
+	background: -webkit-linear-gradient(top,#cec5c3 0,#a39a9c 50%,#857981 51%,#797175 100%);
+	background: linear-gradient(to bottom,#cec5c3 0,#a39a9c 50%,#857981 51%,#797175 100%);
+	z-index: 1;
+}
+
+.tail-wrap:before {
+	width: 22px;
+	height: 16px;
+	content: '';
+	display: block;
+	background: url(../images/bubble.svg) -2px -4px no-repeat;
+	z-index: 2;
+	background-position: -2px -21px !important;
+}
+
+.content-wrap {
+	background: #333;
+	background: -webkit-linear-gradient(top,#cec5c3 0,#a39a9c 50%,#857981 51%,#797175 100%);
+	background: linear-gradient(to bottom,#cec5c3 0,#a39a9c 50%,#857981 51%,#797175 100%);
+	border-radius: 16px;
+	border: 4px solid #fff;
+	vertical-align: top;
+}
+
+.content-text {
+	display: inline-block;
+	padding: 16px 24px;
+	margin: 0 15px 5px;
+	font-size: 1.1em;
+	line-height: normal;
+	letter-spacing: 3px;
+	color: #fff;
+	position: relative;
+	word-break: break-word;
 }
