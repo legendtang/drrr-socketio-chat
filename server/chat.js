@@ -1,3 +1,5 @@
+var xss = require('xss');
+
 function chatServer(io) {
 
 	var onlineUsers = {};
@@ -37,6 +39,7 @@ function chatServer(io) {
 		});
 		
 		socket.on('message', function(obj){
+			obj.content = xss(obj.content);
 			io.emit('message', obj);
 			console.log(obj.username + '说：' + obj.content);
 		});

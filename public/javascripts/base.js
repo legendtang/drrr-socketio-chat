@@ -118,15 +118,23 @@ function Chat() {
 				var isMe = (obj.userid == CHAT.userid) ? true : false;
 
 				
-				var avatarDiv = '<div class="avatar avatar-setton"></div>';
-				var contentTailDiv = '<div class="tail-wrap"></div>'
-				var contentDiv = '<div class="content-wrap content-text">'+obj.content+'</div>';
-				var usernameDiv = '<div class="username">' + obj.username + '</span>';
+				var avatarDiv = '<div class="avatar-wrap">' + 
+									'<div class="avatar avatar-setton"></div>';
+				var usernameDiv = '<div class="username">' + obj.username + '</div>';
+				var timeDiv = '<div class="message-time">' + new Date().toLocaleTimeString() + '</div>' +
+								'</div>';
+				var contentTailDiv = '<div class="tail-wrap"></div>';
+				var contentDiv = '<div class="content-wrap content-text">' + obj.content + '</div>';
+
+
+				// test Time
+				// var timeDiv = '<div class="message-time">' + new Date().toLocaleTimeString() + '</div>'
 
 				var section = document.createElement('section');
 
 				section.className = 'user';
-				section.innerHTML = avatarDiv + contentTailDiv + contentDiv + usernameDiv;
+				// section.innerHTML = avatarDiv + contentTailDiv + contentDiv + usernameDiv + timeDiv;
+				section.innerHTML = avatarDiv + usernameDiv + timeDiv + contentTailDiv + contentDiv;
 
 				CHAT.messageObj.append(section);
 				CHAT.scrollToBottom();
