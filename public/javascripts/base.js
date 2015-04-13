@@ -103,6 +103,11 @@ function Chat() {
 			// Give Me 450!
 			return new Date().getTime() + "" + Math.floor(Math.random() * 12 + 450);
 		},
+		getLocalTime: function () {
+			var time = new Date();
+			function appendZero(s){ return ("00" + s).substr( (s + "").length); }
+			return appendZero(time.getHours()) + ":" + appendZero(time.getMinutes()) + ":" + appendZero(time.getSeconds());
+		},
 		updateInfo:function(o, action){
 			// var onlineUsers = o.onlineUsers;
 			// var onlineCount = o.onlineCount;
@@ -162,6 +167,29 @@ function Chat() {
 				};
 			});
 		},
+		initMessage: function (obj) {
+
+			// Todo
+			//	var isMe = (obj.userid == CHAT.userid) ? true : false;
+
+			var avatarDiv = '<div class="avatar-wrap">' + 
+								'<div class="avatar avatar-setton"></div>';
+			var usernameDiv = '<div class="username">' + obj.username + '</div>'; // Listen on userto's username
+			var timeDiv = '<div class="message-time">' + CHAT.getLocalTime() + '</div>' +
+							'</div>';
+			var contentTailDiv = '<div class="tail-wrap"></div>';
+			var contentDiv = '<div class="content-wrap content-text">' + obj.content + '</div>';
+
+			var section = document.createElement('section');
+
+			section.className = 'user';
+
+			section.innerHTML = avatarDiv + usernameDiv + timeDiv + contentTailDiv + contentDiv;
+
+			CHAT.messageObj.append(section);
+			CHAT.sound.play('bubble');
+			CHAT.scrollToBottom();
+		},
 		initPublicChat: function(){
 			this.socket.emit('joinPub', {userid:this.userid, username:this.username});
 
@@ -176,47 +204,8 @@ function Chat() {
 			});
 
 			this.socket.on('message', function(obj){
-
-				// Todo
-				var isMe = (obj.userid == CHAT.userid) ? true : false;
-				
-				var avatarDiv = '<div class="avatar-wrap">' + 
-									'<div class="avatar avatar-setton"></div>';
-				var usernameDiv = '<div class="username">' + obj.username + '</div>';
-				var timeDiv = '<div class="message-time">' + new Date().toLocaleTimeString() + '</div>' +
-								'</div>';
-				var contentTailDiv = '<div class="tail-wrap"></div>';
-				var contentDiv = '<div class="content-wrap content-text">' + obj.content + '</div>';
-
-				var section = document.createElement('section');
-
-				section.className = 'user';
-
-				section.innerHTML = avatarDiv + usernameDiv + timeDiv + contentTailDiv + contentDiv;
-
-				CHAT.messageObj.append(section);
-				CHAT.sound.play('bubble');
-				CHAT.scrollToBottom();
+				CHAT.initMessage(obj);
 			});
-		},
-		initDirectMessage: function (obj) {
-			var avatarDiv = '<div class="avatar-wrap">' + 
-								'<div class="avatar avatar-setton"></div>';
-			var usernameDiv = '<div class="username">' + obj.username + '</div>'; // Listen on userto's username
-			var timeDiv = '<div class="message-time">' + new Date().toLocaleTimeString() + '</div>' +
-							'</div>';
-			var contentTailDiv = '<div class="tail-wrap"></div>';
-			var contentDiv = '<div class="content-wrap content-text">' + obj.content + '</div>';
-
-			var section = document.createElement('section');
-
-			section.className = 'user';
-
-			section.innerHTML = avatarDiv + usernameDiv + timeDiv + contentTailDiv + contentDiv;
-
-			CHAT.messageObj.append(section);
-			CHAT.sound.play('bubble');
-			CHAT.scrollToBottom();
 		},
 		initPrivateChat: function(){
 			this.userto = $('#form-chat').val();
@@ -238,11 +227,11 @@ function Chat() {
 			});
 
 			this.socket.on('directMessage' + CHAT.username + CHAT.userto, function (obj) {
-				CHAT.initDirectMessage(obj);
+				CHAT.initMessage(obj);
 			});
 
 			this.socket.on('directMessage' + CHAT.userto + CHAT.username, function (obj) {
-				CHAT.initDirectMessage(obj);
+				CHAT.initMessage(obj);
 			});
 		},
 		scrollToBottom: function () {
