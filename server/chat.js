@@ -13,27 +13,31 @@ function chatServer(io) {
 
 		socket.on('login', function(obj){
 
+			var validate = 0;
+
+			console.log(obj.username + ' trys to enable a connection ')
+
 			for(key in onlineUsers) {
 				if(onlineUsers.hasOwnProperty(key) && onlineUsers[key] == obj.username){
-					io.emit('error', -2);
-				} else if (!onlineUsers.hasOwnProperty(obj.userid)) {
-					socket.name = obj.userid;
-					onlineUsers[obj.userid] = obj.username;
-					onlineCount++;
-					console.log(obj.username+' connected');
-				};
+					validate = 1;
+				}
 			};
 
+			console.log(validate);
+
+			if(validate){
+				io.emit('error' + obj.userid, -2);
+			} else if (!onlineUsers.hasOwnProperty(obj.userid)) {
+				socket.name = obj.userid;
+				onlineUsers[obj.userid] = obj.username;
+				onlineCount++;
+				console.log(obj.username + ' connected');
+			};
+
+			console.log(onlineUsers);
 		});
 		
 		socket.on('joinPub', function(obj){
-
-			// for(key in onlineUsers) {
-			// 	if(onlineUsers.hasOwnProperty(key)){
-			// 		console.log(onlineUsers[key]);
-			// 		console.log(obj.username);
-			// 	}
-			// };
 
 			io.emit('joinPub', {onlineUsers:onlineUsers, onlineCount:onlineCount, user:obj});
 			console.log(obj.username+' さんが入室しました');
@@ -41,14 +45,16 @@ function chatServer(io) {
 
 		socket.on('joinPrv', function(obj){
 
-			// for(key in onlineUsers) {
-				// if(onlineUsers.hasOwnProperty(key) && onlineUsers[key] == obj.userto){
-					// channelId = Math.round((new Date().getTime()) / Math.random() / 1e6 - 450);
-					// channel.push(channelId);
-					io.emit('joinPrv', {user: obj});
-					console.log(obj.username+' joined a private room');
-				// }
-			// };
+			if (obj.username == obj.userto) {
+				io.emit('error' + obj.userid, -3);
+			} else {
+				for(key in onlineUsers) {
+					if(onlineUsers.hasOwnProperty(key) && onlineUsers[key] == obj.userto){
+						io.emit('joinPrv' + obj.userto + obj.username, {user: obj});
+						console.log(obj.username+' joined a private room');
+					}
+				};
+			}
 
 		});
 		
@@ -66,7 +72,7 @@ function chatServer(io) {
 				
 				console.log(obj.username + ' さんが退室しました');
 
-				console.log(channel);
+				// console.log(channel);
 			}
 
 		});
@@ -78,10 +84,11 @@ function chatServer(io) {
 		});
 
 		socket.on('directMessage', function(obj){
+
 			for(key in onlineUsers) {
 				if(onlineUsers.hasOwnProperty(key) && onlineUsers[key] == obj.userto){
 					obj.content = xss(obj.content);
-					io.emit('directMessage', obj);
+					io.emit('directMessage' + obj.userto + obj.username, obj);
 					console.log(obj.username + '对 ' + obj.userto + ' 说：' + obj.content);
 				}
 			}

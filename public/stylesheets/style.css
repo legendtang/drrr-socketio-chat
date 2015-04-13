@@ -66,6 +66,7 @@ a {
 	font-weight: 700;
 	-webkit-appearance: none;
 	cursor: pointer;
+	z-index: 999;
 }
 
 #dollars-options {
@@ -84,12 +85,7 @@ a {
 }
 
 .chat-name-input {
-	position:absolute;
-	top:0;
-	bottom:0;
-	left:0;
-	right:0;
-	margin:auto;
+	margin: auto;
 }
 
 .chat-broadcast, .chat-privately {

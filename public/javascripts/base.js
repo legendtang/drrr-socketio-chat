@@ -5,6 +5,7 @@ $(document).ready(function() {
 
 function eventBind () {
 	$('.chat-broadcast').on('click', function () {
+		CHAT.initPublicChat();
 		$('#dollars-options').fadeOut();
 		$('#dollars-room').fadeIn();
 	});
@@ -25,15 +26,24 @@ function eventBind () {
 			$('#dollars').fadeOut();
 			$('#dollars-options').fadeIn();
 		}
-	})
+	});
 
-	$('.chat-broadcast').click(function () {
-		CHAT.initPublicChat();
+	$('#form-chat').keydown(function (event) {
+		if ( event.which == 13 ) {
+			CHAT.initPrivateChat();
+			$('#dollars-options').fadeOut();
+			$('#dollars-room').fadeIn();
+		};
 	})
+	$('#form-private-name').click(function (event) {
+		CHAT.initPrivateChat();
+		$('#dollars-options').fadeOut();
+		$('#dollars-room').fadeIn();
+	});
 
 	$('.message-input button').on('click', function () {
 		CHAT.submit();
-	})
+	});
 	$('.message-input input').keydown(function (event) {
 		if ( event.which == 13 )
 			CHAT.submit();
@@ -81,21 +91,10 @@ function Chat() {
 					username: this.username,
 					content: message
 				};
-				this.socket.emit('message', obj);
-				$("#message").val('');
-			}
-			return false;
-		},
-		privateSubmit: function(){
-			var message = $("#message").val();
-			if($.trim(message) != ''){
-				var obj = {
-					userid: this.userid,
-					userto: this.userto,
-					username: this.username,
-					content: message
-				};
-				this.socket.emit('directMessage', obj);
+				if (this.userto != null) {
+					obj.userto = this.userto;
+					this.socket.emit('directMessage', obj);
+				} else this.socket.emit('message', obj);
 				$("#message").val('');
 			}
 			return false;
@@ -153,15 +152,19 @@ function Chat() {
 			this.socket = io();
 			this.socket.emit('login', {userid:this.userid, username:this.username});
 
-			this.socket.on(('error'), function (status) {
+			this.socket.on('error' + CHAT.userid, function (status) {
 				if (status = -2) {
 					alert('名前は既に使用されている');
+					CHAT.logout();
+				}else if (status = -3) {
+					alert('二重人格はできません!');
+					CHAT.logout();
 				};
 			});
 		},
 		initPublicChat: function(){
 			this.socket.emit('joinPub', {userid:this.userid, username:this.username});
-			
+
 			this.socket.on('joinPub', function(o){
 				CHAT.updateInfo(o, 'joinPub');
 				CHAT.sound.play('userin');
@@ -196,43 +199,50 @@ function Chat() {
 				CHAT.scrollToBottom();
 			});
 		},
+		initDirectMessage: function (obj) {
+			var avatarDiv = '<div class="avatar-wrap">' + 
+								'<div class="avatar avatar-setton"></div>';
+			var usernameDiv = '<div class="username">' + obj.username + '</div>'; // Listen on userto's username
+			var timeDiv = '<div class="message-time">' + new Date().toLocaleTimeString() + '</div>' +
+							'</div>';
+			var contentTailDiv = '<div class="tail-wrap"></div>';
+			var contentDiv = '<div class="content-wrap content-text">' + obj.content + '</div>';
+
+			var section = document.createElement('section');
+
+			section.className = 'user';
+
+			section.innerHTML = avatarDiv + usernameDiv + timeDiv + contentTailDiv + contentDiv;
+
+			CHAT.messageObj.append(section);
+			CHAT.sound.play('bubble');
+			CHAT.scrollToBottom();
+		},
 		initPrivateChat: function(){
+			this.userto = $('#form-chat').val();
 
 			this.socket.emit('joinPrv', {userid:this.userid, username:this.username, userto: this.userto});
 			
-			this.socket.on('joinPrv', function(o){
+			this.socket.on('joinPrv' + CHAT.username + CHAT.userto, function(o){
 				CHAT.updateInfo(o, 'joinPrv');
 				CHAT.sound.play('userin');
-				// CHAT.channel = o.channelId;
+			});
+			this.socket.on('joinPrv' + CHAT.userto + CHAT.username, function(o){
+				CHAT.updateInfo(o, 'joinPrv');
+				CHAT.sound.play('userin');
 			});
 			
-			this.socket.on('logout', function(o){
+			this.socket.on('logout' + CHAT.username, function(o){
 				CHAT.updateInfo(o, 'logout');
 				CHAT.sound.play('userout');
 			});
 
-			this.socket.on('directMessage', function(obj){
+			this.socket.on('directMessage' + CHAT.username + CHAT.userto, function (obj) {
+				CHAT.initDirectMessage(obj);
+			});
 
-				// Todo
-				var isMe = (obj.userid == CHAT.userid) ? true : false;
-				
-				var avatarDiv = '<div class="avatar-wrap">' + 
-									'<div class="avatar avatar-setton"></div>';
-				var usernameDiv = '<div class="username">' + obj.username + '</div>';
-				var timeDiv = '<div class="message-time">' + new Date().toLocaleTimeString() + '</div>' +
-								'</div>';
-				var contentTailDiv = '<div class="tail-wrap"></div>';
-				var contentDiv = '<div class="content-wrap content-text">' + obj.content + '</div>';
-
-				var section = document.createElement('section');
-
-				section.className = 'user';
-
-				section.innerHTML = avatarDiv + usernameDiv + timeDiv + contentTailDiv + contentDiv;
-
-				CHAT.messageObj.append(section);
-				CHAT.sound.play('bubble');
-				CHAT.scrollToBottom();
+			this.socket.on('directMessage' + CHAT.userto + CHAT.username, function (obj) {
+				CHAT.initDirectMessage(obj);
 			});
 		},
 		scrollToBottom: function () {
