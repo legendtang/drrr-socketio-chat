@@ -19,11 +19,15 @@ a {
 }
 
 .login-logo {
-	width: 366px;
-	height: 366px;
+	width: 100%;
+	height: 100%
+	position: absolute;
 	margin: 50px auto;
-	background: url(../images/dollars.svg) no-repeat;
-	background-size: 366px 366px;
+}
+
+.login-logo img {
+	width: 100%;
+	height: 100%;
 }
 
 .login-name, .chat-name-input {
@@ -70,8 +74,8 @@ a {
 }
 
 #dollars-options {
-	width: 366px;
-	height: 366px;
+	width: 100%;
+	height: 100%;
 	position:absolute;
 	top:0;
 	bottom:0;
@@ -124,6 +128,10 @@ a {
 	}
 	.message-input {
 		width: 620px !important;
+	}
+	.login-logo {
+		width: 366px !important;
+		height: 366px !important;
 	}
 }
 
