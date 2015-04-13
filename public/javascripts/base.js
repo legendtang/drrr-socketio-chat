@@ -46,7 +46,9 @@ function Chat() {
 		scrollObj: false,
 		username: null,
 		userid: null,
+		userto: null,
 		socket: null,
+		channel: null,
 		sound: new Howl({
 			urls: [
 				"../javascripts/effect.mp3"
@@ -84,20 +86,42 @@ function Chat() {
 			}
 			return false;
 		},
+		privateSubmit: function(){
+			var message = $("#message").val();
+			if($.trim(message) != ''){
+				var obj = {
+					userid: this.userid,
+					userto: this.userto,
+					username: this.username,
+					content: message
+				};
+				this.socket.emit('directMessage', obj);
+				$("#message").val('');
+			}
+			return false;
+		},
 		randomUid: function(){
 			// Give Me 450!
 			return new Date().getTime() + "" + Math.floor(Math.random() * 12 + 450);
 		},
 		updateInfo:function(o, action){
-			var onlineUsers = o.onlineUsers;
-			var onlineCount = o.onlineCount;
+			// var onlineUsers = o.onlineUsers;
+			// var onlineCount = o.onlineCount;
 
 			var user = o.user;
 
 			var html = '';
 			html += '<div class="message-system">';
 			html += '►► ' + user.username;
-			html += (action == 'login') ? ' さんが入室しました' : ' さんが退室しました';
+
+			if (action == 'joinPub') {
+				html += ' さんが入室しました';
+			} else if (action == 'joinPrv') {
+				html += ' : Private Room コネクト'
+			} else html += ' さんが退室しました';
+
+			// html += (action == 'joinPub') ? ' さんが入室しました' : ' さんが退室しました';
+
 			html += '</div>';
 			var section = document.createElement('section');
 			section.className = 'system';
@@ -110,7 +134,7 @@ function Chat() {
 			if($.trim(message) != ''){
 				return username
 			} else {
-				alert('用户名不能为空');
+				alert('名前は正しくありません');
 				this.logout();
 				return false;
 			}
@@ -128,10 +152,18 @@ function Chat() {
 			
 			this.socket = io();
 			this.socket.emit('login', {userid:this.userid, username:this.username});
+
+			this.socket.on(('error'), function (status) {
+				if (status = -2) {
+					alert('名前は既に使用されている');
+				};
+			});
 		},
 		initPublicChat: function(){
-			this.socket.on('login', function(o){
-				CHAT.updateInfo(o, 'login');
+			this.socket.emit('joinPub', {userid:this.userid, username:this.username});
+			
+			this.socket.on('joinPub', function(o){
+				CHAT.updateInfo(o, 'joinPub');
 				CHAT.sound.play('userin');
 			});
 			
@@ -141,9 +173,9 @@ function Chat() {
 			});
 
 			this.socket.on('message', function(obj){
-				// 保留以后用
-				var isMe = (obj.userid == CHAT.userid) ? true : false;
 
+				// Todo
+				var isMe = (obj.userid == CHAT.userid) ? true : false;
 				
 				var avatarDiv = '<div class="avatar-wrap">' + 
 									'<div class="avatar avatar-setton"></div>';
@@ -153,14 +185,49 @@ function Chat() {
 				var contentTailDiv = '<div class="tail-wrap"></div>';
 				var contentDiv = '<div class="content-wrap content-text">' + obj.content + '</div>';
 
+				var section = document.createElement('section');
 
-				// test Time
-				// var timeDiv = '<div class="message-time">' + new Date().toLocaleTimeString() + '</div>'
+				section.className = 'user';
+
+				section.innerHTML = avatarDiv + usernameDiv + timeDiv + contentTailDiv + contentDiv;
+
+				CHAT.messageObj.append(section);
+				CHAT.sound.play('bubble');
+				CHAT.scrollToBottom();
+			});
+		},
+		initPrivateChat: function(){
+
+			this.socket.emit('joinPrv', {userid:this.userid, username:this.username, userto: this.userto});
+			
+			this.socket.on('joinPrv', function(o){
+				CHAT.updateInfo(o, 'joinPrv');
+				CHAT.sound.play('userin');
+				// CHAT.channel = o.channelId;
+			});
+			
+			this.socket.on('logout', function(o){
+				CHAT.updateInfo(o, 'logout');
+				CHAT.sound.play('userout');
+			});
+
+			this.socket.on('directMessage', function(obj){
+
+				// Todo
+				var isMe = (obj.userid == CHAT.userid) ? true : false;
+				
+				var avatarDiv = '<div class="avatar-wrap">' + 
+									'<div class="avatar avatar-setton"></div>';
+				var usernameDiv = '<div class="username">' + obj.username + '</div>';
+				var timeDiv = '<div class="message-time">' + new Date().toLocaleTimeString() + '</div>' +
+								'</div>';
+				var contentTailDiv = '<div class="tail-wrap"></div>';
+				var contentDiv = '<div class="content-wrap content-text">' + obj.content + '</div>';
 
 				var section = document.createElement('section');
 
 				section.className = 'user';
-				// section.innerHTML = avatarDiv + contentTailDiv + contentDiv + usernameDiv + timeDiv;
+
 				section.innerHTML = avatarDiv + usernameDiv + timeDiv + contentTailDiv + contentDiv;
 
 				CHAT.messageObj.append(section);
