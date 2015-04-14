@@ -4,6 +4,13 @@ $(document).ready(function() {
 });
 
 function eventBind () {
+	$('.avatar-select').click( function () {
+		if ( CHAT.generateAvatar(this) ) {
+			$('.chat-avatar-select').fadeOut();
+			$('.chat-select').fadeIn();
+		};
+	});
+
 	$('.chat-broadcast').on('click', function () {
 		CHAT.initPublicChat();
 		$('#dollars-options').fadeOut();
@@ -59,6 +66,8 @@ function Chat() {
 		userto: null,
 		socket: null,
 		channel: null,
+		avatarList: ['bakyura', 'gg', 'setton', 'kanra', 'tanaka', 'zaika', 'zawa', 'kakka'],
+		avatar: null,
 		sound: new Howl({
 			urls: [
 				"../javascripts/effect.mp3"
@@ -89,7 +98,8 @@ function Chat() {
 				var obj = {
 					userid: this.userid,
 					username: this.username,
-					content: message
+					content: message,
+					avatar: this.avatar
 				};
 				if (this.userto != null) {
 					obj.userto = this.userto;
@@ -102,6 +112,12 @@ function Chat() {
 		randomUid: function(){
 			// Give Me 450!
 			return new Date().getTime() + "" + Math.floor(Math.random() * 12 + 450);
+		},
+		generateAvatar: function (that) {
+			this.avatar = $(that).data('avatar');
+			if (this.avatar != undefined && this.avatarList.indexOf(this.avatar) != -1) {
+				return true;
+			} else return false;
 		},
 		getLocalTime: function () {
 			var time = new Date();
@@ -173,12 +189,12 @@ function Chat() {
 			//	var isMe = (obj.userid == CHAT.userid) ? true : false;
 
 			var avatarDiv = '<div class="avatar-wrap">' + 
-								'<div class="avatar avatar-setton"></div>';
+								'<div class="avatar avatar-' + obj.avatar + '"></div>';
 			var usernameDiv = '<div class="username">' + obj.username + '</div>'; // Listen on userto's username
 			var timeDiv = '<div class="message-time">' + CHAT.getLocalTime() + '</div>' +
 							'</div>';
-			var contentTailDiv = '<div class="tail-wrap"></div>';
-			var contentDiv = '<div class="content-wrap content-text">' + obj.content + '</div>';
+			var contentTailDiv = '<div class="tail-wrap content-' + obj.avatar + '"></div>';
+			var contentDiv = '<div class="content-wrap content-text content-' + obj.avatar + '">' + obj.content + '</div>';
 
 			var section = document.createElement('section');
 
@@ -191,7 +207,7 @@ function Chat() {
 			CHAT.scrollToBottom();
 		},
 		initPublicChat: function(){
-			this.socket.emit('joinPub', {userid:this.userid, username:this.username});
+			this.socket.emit('joinPub', { userid:this.userid, username:this.username, avatar: CHAT.avatar });
 
 			this.socket.on('joinPub', function(o){
 				CHAT.updateInfo(o, 'joinPub');
@@ -210,7 +226,7 @@ function Chat() {
 		initPrivateChat: function(){
 			this.userto = $('#form-chat').val();
 
-			this.socket.emit('joinPrv', {userid:this.userid, username:this.username, userto: this.userto});
+			this.socket.emit('joinPrv', {userid:this.userid, username:this.username, avatar: CHAT.avatar, userto: this.userto});
 			
 			this.socket.on('joinPrv' + CHAT.username + CHAT.userto, function(o){
 				CHAT.updateInfo(o, 'joinPrv');
@@ -236,9 +252,10 @@ function Chat() {
 		},
 		scrollToBottom: function () {
 			// Todo: fix scroll issue or workaround
+			// Workaround 1: Use a golden varaible.
 
 			this.scrollObj = ($(window).scrollTop() == 0) ? true : false;
-			if ( this.scrollObj == true || ( ( $(window).scrollTop() + $(window).height() ) <  ( $(document).height() * 0.9 ) ) )
+			if ( this.scrollObj == true || ( $(document).height() - ( $(window).scrollTop() + $(window).height() ) ) * (Math.sqrt(5) - 1) / 2 <= $('section.user').last().height() )
 				$("body").animate({ scrollTop: $('#talk').height() });
 		}
 	}

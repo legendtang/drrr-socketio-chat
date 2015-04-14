@@ -1,10 +1,15 @@
 var xss = require('xss');
+// var Sse4Crc32 = require("sse4_crc32");
 
 function chatServer(io) {
 
 	var onlineUsers = {};
 
 	var onlineCount = 0;
+
+	// var crc = Sse4Crc32.calculate("my string");
+
+	// console.log(crc);
 
 	// var channel = [];
 
