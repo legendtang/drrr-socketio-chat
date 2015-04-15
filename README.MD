@@ -2,7 +2,7 @@ Drrr Websocket Chat
 =======
 Intro
 ------
-Drrr Websocket Chat is a Websocket based online IM platform like drrr-like-chat.
+Drrr Websocket Chat is a Websocket based online IM platform like drrr-like-chat, which developed from my interview towards Tencent.
 
 Usage
 -----
@@ -14,6 +14,6 @@ Usage
 Todo
 -----
 
-*	Private Messaging
+* Popup for Private Messaging
 *	Bug fixes
 *	UI Improvements
