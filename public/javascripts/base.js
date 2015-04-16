@@ -174,7 +174,10 @@ function Chat() {
 			this.socket.emit('login', {userid:this.userid, username:this.username});
 
 			this.socket.on('error' + CHAT.userid, function (status) {
-				if (status = -2) {
+				if (status = -1) {
+					alert('名前の長さは20文字以内とします');
+					CHAT.logout();
+				} else if (status = -2) {
 					alert('名前は既に使用されている');
 					CHAT.logout();
 				}else if (status = -3) {

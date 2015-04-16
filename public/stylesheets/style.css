@@ -378,6 +378,7 @@ section.user {
 	background: linear-gradient(to bottom,#cec5c3 0,#a39a9c 50%,#857981 51%,#797175 100%);*/
 	border-radius: 16px;
 	border: 4px solid #fff;
+	min-height: 62px;
 	vertical-align: top;
 }
 

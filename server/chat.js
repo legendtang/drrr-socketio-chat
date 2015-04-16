@@ -4,7 +4,6 @@ var xss = require('xss');
 function chatServer(io) {
 
 	var onlineUsers = {};
-
 	var onlineCount = 0;
 
 	// var crc = Sse4Crc32.calculate("my string");
@@ -32,9 +31,11 @@ function chatServer(io) {
 
 			if(validate){
 				io.emit('error' + obj.userid, -2);
+			} else if(obj.username.length >= 20) {
+				io.emit('error' + obj.userid, -1)
 			} else if (!onlineUsers.hasOwnProperty(obj.userid)) {
 				socket.name = obj.userid;
-				onlineUsers[obj.userid] = obj.username;
+				onlineUsers[obj.userid] = xss(obj.username);
 				onlineCount++;
 				console.log(obj.username + ' connected');
 			};
@@ -43,13 +44,11 @@ function chatServer(io) {
 		});
 		
 		socket.on('joinPub', function(obj){
-
 			io.emit('joinPub', {onlineUsers:onlineUsers, onlineCount:onlineCount, user:obj});
-			console.log(obj.username+' さんが入室しました');
+			console.log(obj.username + ' さんが入室しました');
 		});
 
 		socket.on('joinPrv', function(obj){
-
 			if (obj.username == obj.userto) {
 				io.emit('error' + obj.userid, -3);
 			} else {
@@ -64,22 +63,14 @@ function chatServer(io) {
 		});
 		
 		socket.on('disconnect', function(){
-
 			if(onlineUsers.hasOwnProperty(socket.name)) {
-
 				var obj = {userid:socket.name, username:onlineUsers[socket.name]};
-
 				delete onlineUsers[socket.name];
-
 				onlineCount--;
-				
 				io.emit('logout', {onlineUsers:onlineUsers, onlineCount:onlineCount, user:obj});
-				
 				console.log(obj.username + ' さんが退室しました');
-
 				// console.log(channel);
 			}
-
 		});
 		
 		socket.on('message', function(obj){
@@ -89,7 +80,6 @@ function chatServer(io) {
 		});
 
 		socket.on('directMessage', function(obj){
-
 			for(key in onlineUsers) {
 				if(onlineUsers.hasOwnProperty(key) && onlineUsers[key] == obj.userto){
 					obj.content = xss(obj.content);
