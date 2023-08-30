@@ -15,5 +15,8 @@
     "serve-favicon": "~2.2.0",
     "socket.io": "",
     "xss": "^0.1.21"
+  },
+  "engines": {
+    "node": "10.x"
   }
 }
