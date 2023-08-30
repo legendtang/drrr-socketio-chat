@@ -12,7 +12,7 @@
     "express": "~4.18.2",
     "jade": "~1.9.2",
     "morgan": "~1.10.0",
-    "serve-favicon": "~2.2.0",
+    "serve-favicon": "~2.5.0",
     "socket.io": "",
     "xss": "^0.1.21"
   },
