@@ -1,9 +1,10 @@
-var express = require('express');
-var router = express.Router();
+import express from 'express';
+
+const router = express.Router();
 
 /* GET users listing. */
-router.get('/', function(req, res, next) {
-	res.render('room', { title: 'Dollas' });
+router.get('/', (req, res) => {
+  res.render('room', { title: 'Dollars' }); // Corrected typo from 'Dollas' to 'Dollars'
 });
 
-module.exports = router;
+export default router;

@@ -1,8 +1,9 @@
-var express = require('express');
-var router = express.Router();
+import express from 'express';
 
-router.get('/', function(req, res, next) {
-	res.render('index', { title: 'Dollars' });
+const router = express.Router();
+
+router.get('/', (req, res) => {
+  res.render('index', { title: 'Dollars' });
 });
 
-module.exports = router;
+export default router;

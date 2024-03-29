@@ -1,95 +1,93 @@
-var xss = require('xss');
-// var Sse4Crc32 = require("sse4_crc32");
+import xss from 'xss';
 
-function chatServer(io) {
+const chatServer = (io) => {
+  const onlineUsers = {};
+  let onlineCount = 0;
 
-	var onlineUsers = {};
-	var onlineCount = 0;
+  io.on('connection', (socket) => {
+    console.log('A user connected');
 
-	// var crc = Sse4Crc32.calculate("my string");
+    socket.on('login', (obj) => {
+      // Initial validation checks
+      if (typeof obj !== 'object' || !obj.username || !obj.userid) {
+        console.error('Invalid login object');
+        return;
+      }
 
-	// console.log(crc);
+      let validate = Object.values(onlineUsers).includes(obj.username);
+      console.log(`${obj.username} tries to enable a connection`);
 
-	// var channel = [];
+      if (validate) {
+        io.emit(`error${obj.userid}`, -2);
+      } else if (obj.username.length >= 20) {
+        io.emit(`error${obj.userid}`, -1);
+      } else if (!onlineUsers.hasOwnProperty(obj.userid)) {
+        socket.name = obj.userid;
+        onlineUsers[obj.userid] = xss(obj.username);
+        onlineCount++;
+        console.log(`${obj.username} connected`);
+        io.emit('userConnected', { userid: obj.userid, username: xss(obj.username) }); // Emit an event when a user successfully connects
+      }
 
-	io.on('connection', function(socket){
-		console.log('a Dollars member connected');
+      console.log(onlineUsers);
+    });
 
-		socket.on('login', function(obj){
+    socket.on('joinPub', (obj) => {
+      if (!obj || !obj.username) {
+        console.error('Invalid object for joinPub');
+        return;
+      }
+      io.emit('joinPub', { onlineUsers, onlineCount, user: obj });
+      console.log(`${obj.username} joined the public room`);
+    });
 
-			var validate = 0;
+    socket.on('joinPrv', (obj) => {
+      if (!obj || !obj.userto || !obj.username) {
+        console.error('Invalid object for joinPrv');
+        return;
+      }
+      if (obj.username === obj.userto) {
+        io.emit(`error${obj.userid}`, -3);
+      } else {
+        if (Object.values(onlineUsers).includes(obj.userto)) {
+          io.emit(`joinPrv${obj.userto}${obj.username}`, { user: obj });
+          console.log(`${obj.username} joined a private room with ${obj.userto}`);
+        }
+      }
+    });
 
-			console.log(obj.username + ' trys to enable a connection ')
+    socket.on('disconnect', () => {
+      if (onlineUsers.hasOwnProperty(socket.name)) {
+        const obj = { userid: socket.name, username: onlineUsers[socket.name] };
+        delete onlineUsers[socket.name];
+        onlineCount--;
+        io.emit('logout', { onlineUsers, onlineCount, user: obj });
+        console.log(`${obj.username} left`);
+      }
+    });
 
-			for(key in onlineUsers) {
-				if(onlineUsers.hasOwnProperty(key) && onlineUsers[key] == obj.username){
-					validate = 1;
-				}
-			};
+    socket.on('message', (obj) => {
+      if (!obj || !obj.content || !obj.username) {
+        console.error('Invalid message object');
+        return;
+      }
+      obj.content = xss(obj.content);
+      io.emit('message', obj);
+      console.log(`${obj.username} says: ${obj.content}`);
+    });
 
-			console.log(validate);
+    socket.on('directMessage', (obj) => {
+      if (!obj || !obj.content || !obj.userto || !obj.username) {
+        console.error('Invalid direct message object');
+        return;
+      }
+      if (Object.values(onlineUsers).includes(obj.userto)) {
+        obj.content = xss(obj.content);
+        io.emit(`directMessage${obj.userto}${obj.username}`, obj);
+        console.log(`${obj.username} to ${obj.userto}: ${obj.content}`);
+      }
+    });
+  });
+};
 
-			if(validate){
-				io.emit('error' + obj.userid, -2);
-			} else if(obj.username.length >= 20) {
-				io.emit('error' + obj.userid, -1)
-			} else if (!onlineUsers.hasOwnProperty(obj.userid)) {
-				socket.name = obj.userid;
-				onlineUsers[obj.userid] = xss(obj.username);
-				onlineCount++;
-				console.log(obj.username + ' connected');
-			};
-
-			console.log(onlineUsers);
-		});
-		
-		socket.on('joinPub', function(obj){
-			io.emit('joinPub', {onlineUsers:onlineUsers, onlineCount:onlineCount, user:obj});
-			console.log(obj.username + ' さんが入室しました');
-		});
-
-		socket.on('joinPrv', function(obj){
-			if (obj.username == obj.userto) {
-				io.emit('error' + obj.userid, -3);
-			} else {
-				for(key in onlineUsers) {
-					if(onlineUsers.hasOwnProperty(key) && onlineUsers[key] == obj.userto){
-						io.emit('joinPrv' + obj.userto + obj.username, {user: obj});
-						console.log(obj.username+' joined a private room');
-					}
-				};
-			}
-
-		});
-		
-		socket.on('disconnect', function(){
-			if(onlineUsers.hasOwnProperty(socket.name)) {
-				var obj = {userid:socket.name, username:onlineUsers[socket.name]};
-				delete onlineUsers[socket.name];
-				onlineCount--;
-				io.emit('logout', {onlineUsers:onlineUsers, onlineCount:onlineCount, user:obj});
-				console.log(obj.username + ' さんが退室しました');
-				// console.log(channel);
-			}
-		});
-		
-		socket.on('message', function(obj){
-			obj.content = xss(obj.content);
-			io.emit('message', obj);
-			console.log(obj.username + '说：' + obj.content);
-		});
-
-		socket.on('directMessage', function(obj){
-			for(key in onlineUsers) {
-				if(onlineUsers.hasOwnProperty(key) && onlineUsers[key] == obj.userto){
-					obj.content = xss(obj.content);
-					io.emit('directMessage' + obj.userto + obj.username, obj);
-					console.log(obj.username + '对 ' + obj.userto + ' 说：' + obj.content);
-				}
-			}
-		});
-	  
-	});
-}
-
-module.exports = chatServer;
+export default chatServer;
